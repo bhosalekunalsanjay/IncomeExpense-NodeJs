@@ -3,6 +3,17 @@ const app = express();
 const hostname = process.env.HOSTNAME || '127.0.0.1';
 const port = process.env.PORT || 3000;
 const routePrefix = "apiv1";
+const mysql = require('mysql2');
+
+const config = {
+  user: 'root',
+  password: 'pm@dmin',
+  host: 'localhost',
+  database: 'incomeexpense'
+};
+
+const connection = mysql.createConnection(config);
+
 // Import route files
 const usersRoutes = require('./routers/users');
 const postsRoutes = require('./routers/posts');
@@ -26,10 +37,9 @@ app.use(`/${routePrefix}/views`, viewsRoutes);
 
 //#region WILDCARD ROUTE FOR INVALID ROUTES (MAKE SURE TO USE THIS AFTER ALL ROUTES ARE DEFINED ABOVE)
 app.get('*', function (req, res) {
-  res.send('Sorry, this is an invalid URL.');
+  res.status(404).send('Sorry, this is an invalid URL.');
 });
 //#endregion
-
 
 //#region Error handling middleware
 app.use((err, req, res, next) => {
@@ -45,8 +55,23 @@ app.use((err, req, res, next) => {
 });
 //#endregion
 
+async function connectDB() {
+  try {
+    connection.connect((err) => {
+      if (err) {
+        console.error('Error connecting to MySQL database:', err);
+        return;
+      }
+      console.log('Connected to MySQL database');
+    });
+  } catch (error) {
+    console.error('Error connecting to the database:', error);
+  }
+}
+
 //#region Main APP Starting point
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
+  connectDB();
 });
 //#endregion
