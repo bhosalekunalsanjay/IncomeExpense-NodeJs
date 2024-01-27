@@ -1,13 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const dummyData = require('../dummy');
-const users = dummyData.users;
+const queries = require('../utils/queries');
 
 /**
  * WITHOUT ROUTE PARAMS
  */
 router.get('/', (req, res) => {
-  res.json(dummyData);
+  queries.getAllUsers((err, users) => {
+    if (err) {
+      res.status(500).send('Error retrieving users from the database');
+    } else {
+      res.json(users);
+    }
+  });
 });
 
 /**
@@ -15,7 +20,7 @@ router.get('/', (req, res) => {
  */
 router.get('/:Id', (req, res) => {
   const Id = req.params.Id;
-  res.send(users.find(user => user.id == Id) ?? "No data found");
+  //res.send(users.find(user => user.id == Id) ?? "No data found");
 });
 
 module.exports = router;

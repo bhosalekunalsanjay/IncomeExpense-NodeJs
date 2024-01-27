@@ -3,18 +3,9 @@ const app = express();
 const hostname = process.env.HOSTNAME || '127.0.0.1';
 const port = process.env.PORT || 3000;
 const routePrefix = "apiv1";
-const mysql = require('mysql2');
-
-const config = {
-  user: 'root',
-  password: 'pm@dmin',
-  host: 'localhost',
-  database: 'incomeexpense'
-};
-
-const connection = mysql.createConnection(config);
 
 // Import route files
+const authRoutes = require('./routers/auth');
 const usersRoutes = require('./routers/users');
 const postsRoutes = require('./routers/posts');
 const viewsRoutes = require('./routers/views');
@@ -27,13 +18,12 @@ app.use(express.static('public'));//this is to tell express to serve static file
 app.use(express.urlencoded({ extended: true }))//to read the data from request body
 //#endregion
 
-
 //#region ROUTING
+app.use(`/${routePrefix}/auth`, authRoutes);
 app.use(`/${routePrefix}/users`, usersRoutes);
 app.use(`/${routePrefix}/posts`, postsRoutes);
 app.use(`/${routePrefix}/views`, viewsRoutes);
 //#endregion
-
 
 //#region WILDCARD ROUTE FOR INVALID ROUTES (MAKE SURE TO USE THIS AFTER ALL ROUTES ARE DEFINED ABOVE)
 app.get('*', function (req, res) {
@@ -55,23 +45,8 @@ app.use((err, req, res, next) => {
 });
 //#endregion
 
-async function connectDB() {
-  try {
-    connection.connect((err) => {
-      if (err) {
-        console.error('Error connecting to MySQL database:', err);
-        return;
-      }
-      console.log('Connected to MySQL database');
-    });
-  } catch (error) {
-    console.error('Error connecting to the database:', error);
-  }
-}
-
 //#region Main APP Starting point
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
-  connectDB();
 });
 //#endregion
