@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const hostname = process.env.HOSTNAME || '127.0.0.1';
 const port = process.env.PORT || 3000;
 const routePrefix = "apiv1";
@@ -12,10 +13,11 @@ const viewsRoutes = require('./routers/views');
 const CustomError = require('./utils/customError');
 
 //#region MIDDLEWARE
+app.use(express.json())//to read the data from request body
+app.use(express.urlencoded({ extended: false }))//to read the data from request body
 app.set('view engine', 'pug');//this is to set the view engine as pug
 app.set('views', './pug');//this is to tell pug where the views are located
 app.use(express.static('public'));//this is to tell express to serve static files
-app.use(express.urlencoded({ extended: true }))//to read the data from request body
 //#endregion
 
 //#region ROUTING
